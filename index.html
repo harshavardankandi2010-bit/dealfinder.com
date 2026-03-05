@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Finder - Price Comparison Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            color: #1f2937;
+        }
+
+        header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .currency-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .currency-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .stats-bar {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            border: 2px solid #e5e7eb;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+            transform: translateY(-2px);
+        }
+
+        .btn.active {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+        }
+
+        .product-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-category {
+            display: inline-block;
+            background: #f3f4f6;
+            color: #6b7280;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .prices-section {
+            padding: 1.5rem;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .retailer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 0.75rem;
+        }
+
+        .retailer-name {
+            font-weight: 600;
+        }
+
+        .shipping {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
+        }
+
+        .prices {
+            text-align: right;
+        }
+
+        .current-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .original-price {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            text-decoration: line-through;
+            margin-right: 0.5rem;
+        }
+
+        .discount {
+            background: #f59e0b;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .best-deal {
+            background: #10b981;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 0.75rem;
+            text-align: center;
+        }
+
+        .price-range {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f3f4f6;
+            border-radius: 8px;
+        }
+
+        .range-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .range-values {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text {
+            color: #6b7280;
+        }
+
+        footer {
+            background: #1f2937;
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .result-count {
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .sort-buttons {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="header-top">
+                <div class="logo">🛍️ Deal Finder</div>
+                <button class="currency-btn" onclick="toggleCurrency()">💱 INR / USD</button>
+            </div>
+            <input 
+                type="text" 
+                class="search-box" 
+                id="searchBox" 
+                placeholder="Search products... (iPhone, MacBook, Water Bottle, Coffee, Tea)"
+                onkeyup="handleSearch()"
+            >
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-number">40+</div>
+                <div class="stat-label">Products</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">20</div>
+                <div class="stat-label">Retailers</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">200+</div>
+                <div class="stat-label">Prices</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">30-50%</div>
+                <div class="stat-label">Savings</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="result-count" id="resultCount">Showing 40 products</div>
+            <div class="sort-buttons">
+                <button class="btn active" onclick="sortProducts('relevance')">By Relevance</button>
+                <button class="btn" onclick="sortProducts('price-low')">Price ↑</button>
+                <button class="btn" onclick="sortProducts('price-high')">Price ↓</button>
+                <button class="btn" onclick="sortProducts('discount')">Best Discount</button>
+            </div>
+        </div>
+
+        <div class="products-grid" id="productsContainer">
+            <!-- Products loaded here -->
+        </div>
+
+        <div class="empty" id="emptyState" style="display: none;">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-title">No Products Found</div>
+            <div class="empty-text">Try a different search term</div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2024 Deal Finder | India's Price Comparison Platform</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">Find the best deals across Amazon, Flipkart, BigBasket & more</p>
+    </footer>
+
+    <script>
+        // ============================================
+        // COMPLETE PRODUCT DATABASE (EMBEDDED)
+        // ============================================
+        const products = {
+            "iPhone 15 Pro Max": [
+                { retailer: "Amazon.in", price: 134000, original: 159900, discount: "16%", shipping: "Free" },
+                { retailer: "Flipkart", price: 129900, original: 159900, discount: "19%", shipping: "Free" },
+                { retailer: "Apple Store", price: 159900, original: 159900, discount: "0%", shipping: "Free" },
+                { retailer: "Best Buy", price: 1599.99, original: 1999, discount: "20%", shipping: "Free" }
+            ],
+            "iPhone 15 Pro": [
+                { retailer: "Amazon.in", price: 99999, original: 129999, discount: "23%", shipping: "Free" },
+                { retailer: "Flipkart", price: 94999, original: 129999, discount: "27%", shipping: "Free" },
+                { retailer: "Apple Store", price: 129999, original: 129999, discount: "0%", shipping: "Free" }
+            ],
+            "iPhone 15": [
+                { retailer: "Amazon.in", price: 75000, original: 99999, discount: "25%", shipping: "Free" },
+                { retailer: "Flipkart", price: 69999, original: 99999, discount: "30%", shipping: "Free" },
+                { retailer: "Apple Store", price: 99999, original: 99999, discount: "0%", shipping: "Free" }
+            ],
+            "MacBook Air M3": [
+                { retailer: "Amazon.in", price: 99999, original: 129999, discount: "23%", shipping: "Free" },
+                { retailer: "Flipkart", price: 94999, original: 129999, discount: "27%", shipping: "Free" },
+                { retailer: "Apple Store", price: 129999, original: 129999, discount: "0%", shipping: "Free" }
+            ],
+            "MacBook Pro 16 M3": [
+                { retailer: "Amazon.in", price: 249999, original: 299999, discount: "17%", shipping: "Free" },
+                { retailer: "Flipkart", price: 229999, original: 299999, discount: "23%", shipping: "Free" },
+                { retailer: "Apple Store", price: 299999, original: 299999, discount: "0%", shipping: "Free" }
+            ],
+            "Samsung Galaxy S25": [
+                { retailer: "Amazon.in", price: 79999, original: 99999, discount: "20%", shipping: "Free" },
+                { retailer: "Flipkart", price: 74999, original: 99999, discount: "25%", shipping: "Free" },
+                { retailer: "Samsung Store", price: 99999, original: 99999, discount: "0%", shipping: "Free" }
+            ],
+            "OnePlus 14": [
+                { retailer: "Amazon.in", price: 59999, original: 74999, discount: "20%", shipping: "Free" },
+                { retailer: "Flipkart", price: 54999, original: 74999, discount: "27%", shipping: "Free" },
+                { retailer: "OnePlus Store", price: 74999, original: 74999, discount: "0%", shipping: "Free" }
+            ],
+            "Redmi Note 15 Pro": [
+                { retailer: "Amazon.in", price: 24999, original: 34999, discount: "29%", shipping: "Free" },
+                { retailer: "Flipkart", price: 21999, original: 34999, discount: "37%", shipping: "Free" },
+                { retailer: "Mi Store", price: 34999, original: 34999, discount: "0%", shipping: "Free" }
+            ],
+            "Milton Water Bottle 1L": [
+                { retailer: "Amazon.in", price: 599, original: 999, discount: "40%", shipping: "Free" },
+                { retailer: "BigBasket", price: 499, original: 999, discount: "50%", shipping: "Free" },
+                { retailer: "Flipkart", price: 549, original: 999, discount: "45%", shipping: "Free" }
+            ],
+            "Borosil Water Bottle": [
+                { retailer: "Amazon.in", price: 449, original: 799, discount: "44%", shipping: "Free" },
+                { retailer: "Flipkart", price: 399, original: 799, discount: "50%", shipping: "Free" },
+                { retailer: "BigBasket", price: 429, original: 799, discount: "46%", shipping: "Free" }
+            ],
+            "Lay's Magic Masala 40g": [
+                { retailer: "Amazon.in", price: 20, original: 30, discount: "33%", shipping: "Free" },
+                { retailer: "Flipkart", price: 18, original: 30, discount: "40%", shipping: "Free" },
+                { retailer: "BigBasket", price: 19, original: 30, discount: "37%", shipping: "Free" }
+            ],
+            "Parle-G Biscuits 200g": [
+                { retailer: "Amazon.in", price: 30, original: 50, discount: "40%", shipping: "Free" },
+                { retailer: "Flipkart", price: 25, original: 50, discount: "50%", shipping: "Free" },
+                { retailer: "BigBasket", price: 28, original: 50, discount: "44%", shipping: "Free" }
+            ],
+            "Nescafe Coffee 200g": [
+                { retailer: "Amazon.in", price: 399, original: 599, discount: "33%", shipping: "Free" },
+                { retailer: "Flipkart", price: 349, original: 599, discount: "42%", shipping: "Free" },
+                { retailer: "BigBasket", price: 379, original: 599, discount: "37%", shipping: "Free" }
+            ],
+            "Brooke Bond Tea 250g": [
+                { retailer: "Amazon.in", price: 249, original: 379, discount: "34%", shipping: "Free" },
+                { retailer: "Flipkart", price: 219, original: 379, discount: "42%", shipping: "Free" },
+                { retailer: "BigBasket", price: 239, original: 379, discount: "37%", shipping: "Free" }
+            ],
+            "Lipton Tea 25 Bags": [
+                { retailer: "Amazon.in", price: 149, original: 249, discount: "40%", shipping: "Free" },
+                { retailer: "Flipkart", price: 129, original: 249, discount: "48%", shipping: "Free" },
+                { retailer: "BigBasket", price: 139, original: 249, discount: "44%", shipping: "Free" }
+            ],
+            "Amul Butter 100g": [
+                { retailer: "Amazon.in", price: 199, original: 299, discount: "33%", shipping: "Free" },
+                { retailer: "Flipkart", price: 179, original: 299, discount: "40%", shipping: "Free" },
+                { retailer: "BigBasket", price: 189, original: 299, discount: "37%", shipping: "Free" }
+            ],
+            "Tropicana Juice 1L": [
+                { retailer: "Amazon.in", price: 199, original: 349, discount: "43%", shipping: "Free" },
+                { retailer: "Flipkart", price: 179, original: 349, discount: "49%", shipping: "Free" },
+                { retailer: "BigBasket", price: 189, original: 349, discount: "46%", shipping: "Free" }
+            ],
+            "Colgate Toothpaste 100ml": [
+                { retailer: "Amazon.in", price: 99, original: 149, discount: "33%", shipping: "Free" },
+                { retailer: "Flipkart", price: 89, original: 149, discount: "40%", shipping: "Free" },
+                { retailer: "BigBasket", price: 95, original: 149, discount: "36%", shipping: "Free" }
+            ],
+            "Head & Shoulders Shampoo": [
+                { retailer: "Amazon.in", price: 249, original: 399, discount: "38%", shipping: "Free" },
+                { retailer: "Flipkart", price: 219, original: 399, discount: "45%", shipping: "Free" },
+                { retailer: "BigBasket", price: 239, original: 399, discount: "40%", shipping: "Free" }
+            ],
+            "Dove Soap 125g": [
+                { retailer: "Amazon.in", price: 99, original: 149, discount: "34%", shipping: "Free" },
+                { retailer: "Flipkart", price: 89, original: 149, discount: "40%", shipping: "Free" },
+                { retailer: "BigBasket", price: 95, original: 149, discount: "36%", shipping: "Free" }
+            ],
+            "Ariel Detergent 1kg": [
+                { retailer: "Amazon.in", price: 299, original: 499, discount: "40%", shipping: "Free" },
+                { retailer: "Flipkart", price: 249, original: 499, discount: "50%", shipping: "Free" },
+                { retailer: "BigBasket", price: 279, original: 499, discount: "44%", shipping: "Free" }
+            ],
+            "Maggi Noodles 2 Min": [
+                { retailer: "Amazon.in", price: 15, original: 25, discount: "40%", shipping: "Free" },
+                { retailer: "Flipkart", price: 13, original: 25, discount: "48%", shipping: "Free" },
+                { retailer: "BigBasket", price: 14, original: 25, discount: "44%", shipping: "Free" }
+            ],
+            "Cadbury Dairy Milk 40g": [
+                { retailer: "Amazon.in", price: 35, original: 50, discount: "30%", shipping: "Free" },
+                { retailer: "Flipkart", price: 30, original: 50, discount: "40%", shipping: "Free" },
+                { retailer: "BigBasket", price: 32, original: 50, discount: "36%", shipping: "Free" }
+            ],
+            "iPad Pro 12.9": [
+                { retailer: "Amazon.in", price: 89999, original: 109999, discount: "18%", shipping: "Free" },
+                { retailer: "Flipkart", price: 79999, original: 109999, discount: "27%", shipping: "Free" },
+                { retailer: "Apple Store", price: 109999, original: 109999, discount: "0%", shipping: "Free" }
+            ],
+            "Haldiram Mixture 400g": [
+                { retailer: "Amazon.in", price: 89, original: 129, discount: "31%", shipping: "Free" },
+                { retailer: "Flipkart", price: 79, original: 129, discount: "39%", shipping: "Free" },
+                { retailer: "BigBasket", price: 85, original: 129, discount: "34%", shipping: "Free" }
+            ],
+            "Cello Water Bottle 900ml": [
+                { retailer: "Amazon.in", price: 349, original: 599, discount: "42%", shipping: "Free" },
+                { retailer: "Flipkart", price: 299, original: 599, discount: "50%", shipping: "Free" },
+                { retailer: "BigBasket", price: 329, original: 599, discount: "45%", shipping: "Free" }
+            ],
+            "Kurkure Masala 40g": [
+                { retailer: "Amazon.in", price: 19, original: 28, discount: "32%", shipping: "Free" },
+                { retailer: "Flipkart", price: 17, original: 28, discount: "39%", shipping: "Free" },
+                { retailer: "BigBasket", price: 18, original: 28, discount: "36%", shipping: "Free" }
+            ],
+            "Britannia Good Day": [
+                { retailer: "Amazon.in", price: 45, original: 70, discount: "36%", shipping: "Free" },
+                { retailer: "Flipkart", price: 40, original: 70, discount: "43%", shipping: "Free" },
+                { retailer: "BigBasket", price: 42, original: 70, discount: "40%", shipping: "Free" }
+            ],
+            "Bournvita 200g": [
+                { retailer: "Amazon.in", price: 229, original: 349, discount: "34%", shipping: "Free" },
+                { retailer: "Flipkart", price: 199, original: 349, discount: "43%", shipping: "Free" },
+                { retailer: "BigBasket", price: 219, original: 349, discount: "37%", shipping: "Free" }
+            ],
+            "Sunfeast Marie 300g": [
+                { retailer: "Amazon.in", price: 79, original: 129, discount: "39%", shipping: "Free" },
+                { retailer: "Flipkart", price: 69, original: 129, discount: "46%", shipping: "Free" },
+                { retailer: "BigBasket", price: 75, original: 129, discount: "42%", shipping: "Free" }
+            ],
+            "Real Juice 1L": [
+                { retailer: "Amazon.in", price: 199, original: 349, discount: "43%", shipping: "Free" },
+                { retailer: "Flipkart", price: 179, original: 349, discount: "49%", shipping: "Free" },
+                { retailer: "BigBasket", price: 189, original: 349, discount: "46%", shipping: "Free" }
+            ],
+            "Frooti Juice 1L": [
+                { retailer: "Amazon.in", price: 149, original: 249, discount: "40%", shipping: "Free" },
+                { retailer: "Flipkart", price: 129, original: 249, discount: "48%", shipping: "Free" },
+                { retailer: "BigBasket", price: 139, original: 249, discount: "44%", shipping: "Free" }
+            ],
+            "Maaza Mango 1L": [
+                { retailer: "Amazon.in", price: 149, original: 249, discount: "40%", shipping: "Free" },
+                { retailer: "Flipkart", price: 129, original: 249, discount: "48%", shipping: "Free" },
+                { retailer: "BigBasket", price: 139, original: 249, discount: "44%", shipping: "Free" }
+            ],
+            "Ponds Cold Cream": [
+                { retailer: "Amazon.in", price: 149, original: 249, discount: "40%", shipping: "Free" },
+                { retailer: "Flipkart", price: 129, original: 249, discount: "48%", shipping: "Free" },
+                { retailer: "BigBasket", price: 139, original: 249, discount: "44%", shipping: "Free" }
+            ],
+            "Fair & Lovely Cream": [
+                { retailer: "Amazon.in", price: 99, original: 169, discount: "41%", shipping: "Free" },
+                { retailer: "Flipkart", price: 85, original: 169, discount: "50%", shipping: "Free" },
+                { retailer: "BigBasket", price: 95, original: 169, discount: "44%", shipping: "Free" }
+            ],
+            "Old Spice Deodorant": [
+                { retailer: "Amazon.in", price: 249, original: 399, discount: "38%", shipping: "Free" },
+                { retailer: "Flipkart", price: 219, original: 399, discount: "45%", shipping: "Free" },
+                { retailer: "BigBasket", price: 239, original: 399, discount: "40%", shipping: "Free" }
+            ],
+            "Vim Dishwash 1L": [
+                { retailer: "Amazon.in", price: 249, original: 399, discount: "38%", shipping: "Free" },
+                { retailer: "Flipkart", price: 219, original: 399, discount: "45%", shipping: "Free" },
+                { retailer: "BigBasket", price: 239, original: 399, discount: "40%", shipping: "Free" }
+            ],
+            "Harpic Toilet Cleaner": [
+                { retailer: "Amazon.in", price: 149, original: 249, discount: "40%", shipping: "Free" },
+                { retailer: "Flipkart", price: 129, original: 249, discount: "48%", shipping: "Free" },
+                { retailer: "BigBasket", price: 139, original: 249, discount: "44%", shipping: "Free" }
+            ],
+            "Lizol Floor Cleaner": [
+                { retailer: "Amazon.in", price: 199, original: 349, discount: "43%", shipping: "Free" },
+                { retailer: "Flipkart", price: 179, original: 349, discount: "49%", shipping: "Free" },
+                { retailer: "BigBasket", price: 189, original: 349, discount: "46%", shipping: "Free" }
+            ]
+        };
+
+        let currentCurrency = 'INR';
+        let exchangeRate = 83.5;
+        let filteredProducts = Object.entries(products);
+        let currentSort = 'relevance';
+
+        // Initialize
+        window.onload = function() {
+            displayProducts(filteredProducts);
+            setupSearch();
+        };
+
+        function setupSearch() {
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox) {
+                searchBox.addEventListener('keyup', handleSearch);
+            }
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('searchBox').value.toLowerCase().trim();
+            
+            if (query === '') {
+                filteredProducts = Object.entries(products);
+            } else {
+                filteredProducts = Object.entries(products).filter(([name]) => 
+                    name.toLowerCase().includes(query)
+                );
+            }
+
+            if (filteredProducts.length === 0) {
+                showEmpty();
+                return;
+            }
+
+            displayProducts(filteredProducts);
+        }
+
+        function sortProducts(type) {
+            currentSort = type;
+            
+            // Update buttons
+            document.querySelectorAll('.sort-buttons .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            if (type === 'price-low') {
+                filteredProducts.sort((a, b) => {
+                    const priceA = Math.min(...a[1].map(p => p.price));
+                    const priceB = Math.min(...b[1].map(p => p.price));
+                    return priceA - priceB;
+                });
+            } else if (type === 'price-high') {
+                filteredProducts.sort((a, b) => {
+                    const priceA = Math.min(...a[1].map(p => p.price));
+                    const priceB = Math.min(...b[1].map(p => p.price));
+                    return priceB - priceA;
+                });
+            } else if (type === 'discount') {
+                filteredProducts.sort((a, b) => {
+                    const discountA = Math.max(...a[1].map(p => parseInt(p.discount)));
+                    const discountB = Math.max(...b[1].map(p => parseInt(p.discount)));
+                    return discountB - discountA;
+                });
+            }
+
+            displayProducts(filteredProducts);
+        }
+
+        function toggleCurrency() {
+            currentCurrency = currentCurrency === 'INR' ? 'USD' : 'INR';
+            document.querySelector('.currency-btn').textContent = 
+                currentCurrency === 'INR' ? '💱 INR / USD' : '💱 USD / INR';
+            displayProducts(filteredProducts);
+        }
+
+        function displayProducts(prods) {
+            const container = document.getElementById('productsContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            if (!prods || prods.length === 0) {
+                showEmpty();
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            container.innerHTML = prods.map(([name, retailers]) => {
+                const prices = retailers.map(r => r.price);
+                const minPrice = Math.min(...prices);
+                const maxPrice = Math.max(...prices);
+                const bestRetailer = retailers.find(r => r.price === minPrice);
+
+                return `
+                    <div class="product-card">
+                        <div class="product-header">
+                            <div class="product-name">${name}</div>
+                            <span class="product-category">${getCategory(name)}</span>
+                        </div>
+                        <div class="prices-section">
+                            ${retailers.map(r => `
+                                <div class="retailer-item">
+                                    <div>
+                                        <div class="retailer-name">${r.retailer}</div>
+                                        <div class="shipping">📦 ${r.shipping}</div>
+                                    </div>
+                                    <div class="prices">
+                                        <span class="current-price">${formatPrice(r.price)}</span>
+                                        <span class="original-price">${formatPrice(r.original)}</span>
+                                        <span class="discount">${r.discount}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            
+                            ${bestRetailer ? `
+                                <div class="best-deal">✨ Best: ${formatPrice(bestRetailer.price)}</div>
+                            ` : ''}
+
+                            <div class="price-range">
+                                <div class="range-label">Price Range</div>
+                                <div class="range-values">
+                                    <span>${formatPrice(minPrice)}</span>
+                                    <span>${formatPrice(maxPrice)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateResultCount();
+        }
+
+        function formatPrice(price) {
+            if (currentCurrency === 'USD') {
+                return '$' + (price / exchangeRate).toFixed(2);
+            }
+            return '₹' + Math.round(price).toLocaleString('en-IN');
+        }
+
+        function getCategory(name) {
+            const categories = {
+                'iPhone': 'Phones',
+                'MacBook': 'Laptops',
+                'iPad': 'Tablets',
+                'Samsung': 'Phones',
+                'OnePlus': 'Phones',
+                'Redmi': 'Phones',
+                'Water': 'Bottles',
+                'Lay': 'Snacks',
+                'Parle': 'Biscuits',
+                'Nescafe': 'Beverages',
+                'Tea': 'Beverages',
+                'Juice': 'Beverages',
+                'Shampoo': 'Personal Care',
+                'Soap': 'Personal Care',
+                'Detergent': 'Cleaning',
+                'Coffee': 'Beverages',
+                'Maggi': 'Snacks'
+            };
+
+            for (let key in categories) {
+                if (name.includes(key)) return categories[key];
+            }
+            return 'Products';
+        }
+
+        function updateResultCount() {
+            const count = filteredProducts.length;
+            document.getElementById('resultCount').textContent = `Showing ${count} product${count !== 1 ? 's' : ''}`;
+        }
+
+        function showEmpty() {
+            document.getElementById('productsContainer').innerHTML = '';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('resultCount').textContent = 'No products found';
+        }
+    </script>
+</body>
+</html>
